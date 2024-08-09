@@ -1,95 +1,53 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+// src/app/page.js
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import SaleForm from './components/SaleForm';
+import SalesTable from './components/SalesTable';
+import Invoice from './components/Invoice';
 
 export default function Home() {
+  const [sales, setSales] = useState([]);
+  const [selectedSale, setSelectedSale] = useState(null);
+
+  // Memuat data penjualan dari Local Storage saat halaman dimuat
+  useEffect(() => {
+    const savedSales = JSON.parse(localStorage.getItem('sales')) || [];
+    setSales(savedSales);
+  }, []);
+
+  // Menyimpan data penjualan ke Local Storage setiap kali data penjualan berubah
+  useEffect(() => {
+    if (sales.length > 0) {
+      localStorage.setItem('sales', JSON.stringify(sales));
+    }
+  }, [sales]);
+
+  const handleAddSale = (newSale) => {
+    setSales([...sales, newSale]);
+  };
+
+  const handleViewInvoice = (sale) => {
+    setSelectedSale(sale);
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="container mt-5">
+      <h1 className="mb-4 text-center">Catatan Penjualan</h1>
+      <div className="row">
+        <div className="col-md-4">
+          <SaleForm onAddSale={handleAddSale} />
         </div>
+        <div className="col-md-8">
+          <SalesTable sales={sales} onViewInvoice={handleViewInvoice} />
+        </div>
+        {selectedSale && (
+          <div className="col-12 mt-4">
+            <Invoice sale={selectedSale} />
+          </div>
+        )}
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
