@@ -10,6 +10,7 @@ import Invoice from './components/Invoice';
 export default function Home() {
   const [sales, setSales] = useState([]);
   const [selectedSale, setSelectedSale] = useState(null);
+  const [editIndex, setEditIndex] = useState(null);
 
   // Memuat data penjualan dari Local Storage saat halaman dimuat
   useEffect(() => {
@@ -28,6 +29,23 @@ export default function Home() {
     setSales([...sales, newSale]);
   };
 
+  const handleEditSale = (index) => {
+    setEditIndex(index);
+  };
+
+  const handleSaveEdit = (updatedSale) => {
+    const updatedSales = [...sales];
+    updatedSales[editIndex] = updatedSale;
+    setSales(updatedSales);
+    setEditIndex(null);
+  };
+
+  const handleDeleteSale = (index) => {
+    const updatedSales = sales.filter((_, i) => i !== index);
+    setSales(updatedSales);
+  };
+  
+
   const handleViewInvoice = (sale) => {
     setSelectedSale(sale);
   };
@@ -37,10 +55,19 @@ export default function Home() {
       <h1 className="mb-4 text-center">Catatan Penjualan</h1>
       <div className="row">
         <div className="col-md-4">
-          <SaleForm onAddSale={handleAddSale} />
+          <SaleForm
+            onAddSale={handleAddSale}
+            saleToEdit={editIndex !== null ? sales[editIndex] : null}
+            onSaveEdit={handleSaveEdit}
+          />
         </div>
         <div className="col-md-8">
-          <SalesTable sales={sales} onViewInvoice={handleViewInvoice} />
+          <SalesTable
+            sales={sales}
+            onViewInvoice={handleViewInvoice}
+            onEditSale={handleEditSale}
+            onDeleteSale={handleDeleteSale}
+          />
         </div>
         {selectedSale && (
           <div className="col-12 mt-4">

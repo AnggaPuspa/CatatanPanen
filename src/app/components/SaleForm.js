@@ -1,28 +1,44 @@
 // src/app/components/SaleForm.js
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function SaleForm({ onAddSale }) {
+export default function SaleForm({ onAddSale, saleToEdit, onSaveEdit }) {
   const [product, setProduct] = useState('Cengkeh');
   const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(1000);
 
+  useEffect(() => {
+    if (saleToEdit) {
+      setProduct(saleToEdit.product);
+      setQuantity(saleToEdit.quantity);
+      setPrice(saleToEdit.price);
+    }
+  }, [saleToEdit]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAddSale({
+    const newSale = {
       product,
       quantity: parseFloat(quantity),
       price: parseFloat(price),
       total: parseFloat(quantity) * parseFloat(price),
-      date: new Date().toLocaleDateString('id-ID'), // Tanggal pembuatan
-    });
+      date: new Date().toLocaleDateString('id-ID'),
+    };
+
+    if (saleToEdit) {
+      onSaveEdit(newSale);
+    } else {
+      onAddSale(newSale);
+    }
+
+    setProduct('Cengkeh');
     setQuantity(0);
     setPrice(1000);
   };
 
   return (
     <form onSubmit={handleSubmit} className="card shadow p-4 mb-4 bg-white border-0">
-      <h5 className="card-title mb-3">Tambah Penjualan</h5>
+      <h5 className="card-title mb-3">{saleToEdit ? 'Edit Penjualan' : 'Tambah Penjualan'}</h5>
 
       <div className="mb-3">
         <label htmlFor="product" className="form-label">
@@ -74,7 +90,7 @@ export default function SaleForm({ onAddSale }) {
       </div>
 
       <button type="submit" className="btn btn-primary w-100">
-        Tambah Penjualan
+        {saleToEdit ? 'Simpan Perubahan' : 'Tambah Penjualan'}
       </button>
     </form>
   );
